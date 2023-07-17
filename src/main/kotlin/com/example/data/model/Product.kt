@@ -1,5 +1,7 @@
 package com.example.data.model
 
+import io.ktor.server.auth.*
+
 data class Product(
     val id:Int,
     val title:String,
@@ -7,4 +9,4 @@ data class Product(
     val category:String,
     val price:Int,
     val availability:Boolean
-)
+): Principal
