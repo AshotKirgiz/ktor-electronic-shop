@@ -2,7 +2,6 @@ package com.example.customRoutes
 
 import com.example.data.model.Product
 import com.example.util.SimpleResponse
-import com.example.data.table.ProductTable
 import com.example.repository.Repo
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -15,7 +14,7 @@ const val PRODUCTS="$API_VERSION/product"
 const val CREATE_PRODUCTS = "$PRODUCTS/create"
 const val UPDATE_PRODUCTS = "$PRODUCTS/update"
 const val DELETE_PRODUCTS = "$PRODUCTS/delete"
-const val FIND_PRODUCTS_ID = "$PRODUCTS/id"
+const val FIND_PRODUCTS_ID = "$PRODUCTS/id{id?}"
 const val FIND_PRODUCTS_CATEGORY = "$PRODUCTS/category"
 
 
@@ -41,6 +40,16 @@ fun Route.productRoutes(
         get(PRODUCTS) {
             try {
                 val products = db.getAllProducts()
+                call.respond(HttpStatusCode.OK,products)
+            } catch (e:Exception) {
+                call.respond(HttpStatusCode.Conflict, e.message ?: "Some Problem Occurred")
+            }
+        }
+
+        get(FIND_PRODUCTS_ID) {
+            try {
+                val id = call.principal<Product>()!!.id
+                val products = db.findProductById(id)
                 call.respond(HttpStatusCode.OK,products)
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict, e.message ?: "Some Problem Occurred")
