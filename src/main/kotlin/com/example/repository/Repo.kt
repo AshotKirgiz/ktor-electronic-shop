@@ -54,10 +54,9 @@ class Repo {
         ProductTable.selectAll().map(::rowToProduct)
     }
 
-    suspend fun findProductById(id: Int):List<Product> = dbQuery {
-        ProductTable.select {
-            ProductTable.id.eq(id)
-        }.mapNotNull { rowToProduct(it) }
+    suspend fun findProductById(id: Int): List<Product?> = dbQuery {
+        ProductTable.select{ ProductTable.id.eq(id) }
+            .map { rowToProduct(it) }
     }
 
     suspend fun findProductByCategory(category: String) = dbQuery {
