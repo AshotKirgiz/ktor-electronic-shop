@@ -54,9 +54,10 @@ class Repo {
         ProductTable.selectAll().map(::rowToProduct)
     }
 
-    suspend fun findProductById(id: Int): List<Product?> = dbQuery {
-        ProductTable.select{ ProductTable.id.eq(id) }
-            .map { rowToProduct(it) }
+    suspend fun findProductById(id: String): List<Product?> = dbQuery {
+        ProductTable.select{
+            ProductTable.id.eq(id)
+        }.map { rowToProduct(it) }
     }
 
     suspend fun findProductByCategory(category: String) = dbQuery {
@@ -65,20 +66,20 @@ class Repo {
         }.mapNotNull { rowToProduct(it) }
     }
 
-    suspend fun updateProduct(product: Product, id: Int) {
+    suspend fun updateProduct(product: Product) {
         dbQuery {
-            ProductTable.update(){ pt->
-                pt[ProductTable.id] = product.id
-                pt[ProductTable.title] = product.title
-                pt[ProductTable.description] = product.description
-                pt[ProductTable.category] = product.category
+            ProductTable.update(
+                where = {
+                    ProductTable.id.eq(product.id)
+                }
+            ){ pt->
                 pt[ProductTable.price] = product.price
                 pt[ProductTable.availability] = product.availability
             }
         }
     }
 
-    suspend fun deleteProduct(productId: String, id: Int){
+    suspend fun deleteProduct(id: String){
         dbQuery {
             ProductTable.deleteWhere {ProductTable.id eq id}
         }

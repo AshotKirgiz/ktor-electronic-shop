@@ -3,7 +3,7 @@ package com.example.data.model
 import io.ktor.server.auth.*
 
 data class Product(
-    val id:Int,
+    val id:String,
     val title:String,
     val description:String,
     val category:String,

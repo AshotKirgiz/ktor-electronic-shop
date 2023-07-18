@@ -15,7 +15,7 @@ const val PRODUCTS="$API_VERSION/product"
 const val CREATE_PRODUCTS = "$PRODUCTS/create"
 const val UPDATE_PRODUCTS = "$PRODUCTS/update"
 const val DELETE_PRODUCTS = "$PRODUCTS/delete"
-const val FIND_PRODUCTS_ID = "$PRODUCTS/id{id?}"
+const val FIND_PRODUCTS_ID = "$PRODUCTS/id"
 const val FIND_PRODUCTS_CATEGORY = "$PRODUCTS/category"
 
 
@@ -49,7 +49,7 @@ fun Route.productRoutes(
 
         get(FIND_PRODUCTS_ID) {
             try {
-                val id = call.request.queryParameters["id"]!!.toInt()
+                val id = call.request.queryParameters["id"]!!
                 val products = db.findProductById(id)
                 call.respond(HttpStatusCode.OK,products)
             } catch (e:Exception) {
@@ -59,7 +59,7 @@ fun Route.productRoutes(
 
         get(FIND_PRODUCTS_CATEGORY) {
             try {
-                val category = call.principal<Product>()!!.category
+                val category = call.request.queryParameters["category"]!!
                 val products = db.findProductByCategory(category)
                 call.respond(HttpStatusCode.OK,products)
             } catch (e:Exception) {
@@ -72,11 +72,11 @@ fun Route.productRoutes(
                 call.receive<Product>()
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.BadRequest,SimpleResponse(false,"Missing Fields"))
+                return@post
             }
 
             try {
-                val id = call.principal<Product>()!!.id
-                db.updateProduct(product as Product,id)
+                db.updateProduct(product)
                 call.respond(HttpStatusCode.OK,SimpleResponse(true,"Product updated Successfully"))
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false,e.message ?: "Some Problem Occurred"))
@@ -84,15 +84,14 @@ fun Route.productRoutes(
         }
 
         delete(DELETE_PRODUCTS) {
-            val productId = try {
+            val id = try {
                 call.request.queryParameters["id"]!!
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "QueryParameter: id is not exist"))
                 return@delete
             }
             try {
-                val id = call.principal<Product>()!!.id
-                db.deleteProduct(productId, id)
+                db.deleteProduct(id)
                 call.respond(HttpStatusCode.OK, SimpleResponse(true, "Product Deleted Successfully"))
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.Conflict, SimpleResponse(false, e.message ?: "Some Problem Occurred"))
