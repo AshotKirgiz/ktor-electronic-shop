@@ -8,6 +8,7 @@ import com.example.repository.Repo
 import com.example.util.SimpleResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,6 +17,7 @@ const val API_VERSION = "/v1"
 const val USERS = "$API_VERSION/users"
 const val REGISTER_REQUEST = "$USERS/register"
 const val LOGIN_REQUEST = "$USERS/login"
+const val RESET_PASSWORD = "$USERS/password/reset"
 
 fun Route.userRoutes(
     db: Repo,
@@ -61,6 +63,12 @@ fun Route.userRoutes(
             }
         } catch (e:Exception){
             call.respond(HttpStatusCode.Conflict,SimpleResponse(false,e.message ?: "Some Problem Occurred"))
+        }
+    }
+
+    authenticate("jwt") {
+        post(RESET_PASSWORD) {
+            TODO()
         }
     }
 }

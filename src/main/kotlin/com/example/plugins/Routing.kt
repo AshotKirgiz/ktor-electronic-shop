@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.application.*
 import com.example.customRoutes.userRoutes
 import com.example.customRoutes.productRoutes
+import com.example.customRoutes.ratingRoutes
 import com.example.repository.Repo
 
 fun Application.configureRouting() {
@@ -21,5 +22,6 @@ fun Application.configureRouting() {
         val hashFunction = { s:String -> hash(s) }
         userRoutes(db,jwtService,hashFunction)
         productRoutes(db)
+        ratingRoutes(db)
     }
 }

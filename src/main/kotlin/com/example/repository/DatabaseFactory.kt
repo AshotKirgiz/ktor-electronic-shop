@@ -1,6 +1,7 @@
 package com.example.repository
 
 import com.example.data.table.ProductTable
+import com.example.data.table.RatingTable
 import com.example.data.table.UserTable
 import org.jetbrains.exposed.sql.Database
 import com.zaxxer.hikari.HikariConfig
@@ -19,6 +20,7 @@ object DatabaseFactory {
         transaction {
             SchemaUtils.create(UserTable)
             SchemaUtils.create(ProductTable)
+            SchemaUtils.create(RatingTable)
         }
     }
 

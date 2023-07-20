@@ -18,7 +18,6 @@ const val DELETE_PRODUCTS = "$PRODUCTS/delete"
 const val FIND_PRODUCTS_ID = "$PRODUCTS/id"
 const val FIND_PRODUCTS_CATEGORY = "$PRODUCTS/category"
 
-
 fun Route.productRoutes(
     db:Repo,
 ) {

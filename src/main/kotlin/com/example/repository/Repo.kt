@@ -1,9 +1,12 @@
 package com.example.repository
 
 import com.example.data.model.Product
+import com.example.data.model.Rating
 import com.example.data.model.User
 import com.example.data.table.ProductTable
+import com.example.data.table.RatingTable
 import com.example.data.table.UserTable
+import com.example.plugins.db
 import com.example.repository.DatabaseFactory.dbQuery
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -91,6 +94,51 @@ class Repo {
         category = row[ProductTable.category],
         price = row[ProductTable.price],
         availability = row[ProductTable.availability]
+    )
+    suspend fun addRating(rating: Rating,productid: String){
+        dbQuery {
+            RatingTable.insert { rt->
+                rt[RatingTable.productid] = rating.productid
+                rt[RatingTable.gradeid] = rating.gradeid
+                rt[RatingTable.name] = rating.userName
+                rt[RatingTable.grade] = rating.grade
+                rt[RatingTable.title] = rating.title
+                rt[RatingTable.description] = rating.description
+            }
+        }
+    }
+    suspend fun getRating(productid: String):List<Rating> = dbQuery {
+        RatingTable.select{
+            RatingTable.productid.eq(productid)
+        }.mapNotNull { rowToRating(it) }
+    }
+
+    suspend fun updateRating(rating: Rating,productid: String){
+        dbQuery {
+            RatingTable.update(
+                where = {
+                    RatingTable.productid.eq(productid) and RatingTable.name.eq(rating.userName)
+                }
+            ){ rt->
+                rt[RatingTable.grade] = rating.grade
+                rt[RatingTable.title] = rating.title
+                rt[RatingTable.description] = rating.description
+            }
+        }
+    }
+
+    suspend fun deleteRating(gradeid:String,productid: String){
+        dbQuery {
+            RatingTable.deleteWhere { RatingTable.gradeid.eq(gradeid) }
+        }
+    }
+    private fun rowToRating(row: ResultRow) = Rating(
+        productid = row[RatingTable.productid],
+        gradeid = row[RatingTable.gradeid],
+        userName = row[RatingTable.name],
+        grade = row[RatingTable.grade],
+        title = row[RatingTable.title],
+        description = row[RatingTable.description]
     )
 }
 
