@@ -3,10 +3,9 @@ package com.example.data.table
 import org.jetbrains.exposed.sql.Table
 
 object RatingTable: Table() {
-
     val productid = varchar("productid", 256).references(ProductTable.id)
-    val gradeid = varchar("gradeid", 256)
-    val name = varchar("name", 512).references(UserTable.email)
+    val gradeid = integer("gradeid").autoIncrement()
+    val name = varchar("name", 512).references(UserTable.name)
     val grade = integer("grade")
     val title = varchar("title", 256)
     val description = varchar("description", 1024)

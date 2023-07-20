@@ -21,7 +21,7 @@ fun Route.ratingRoutes(
     db: Repo,
 ) {
     authenticate("jwt") {
-        post (CREATE_RATE) {
+        post(CREATE_RATE) {
             val rating = try {
                 call.receive<Rating>()
             } catch (e:Exception) {
@@ -29,7 +29,7 @@ fun Route.ratingRoutes(
             }
 
             try {
-                val productid = call.principal<Product>()!!.id
+                val productid = call.request.queryParameters["productid"]!!
                 db.addRating(rating as Rating, productid)
                 call.respond(HttpStatusCode.OK,SimpleResponse(true,"Rating added Successfully"))
             } catch (e:Exception) {
@@ -37,17 +37,17 @@ fun Route.ratingRoutes(
             }
         }
 
-        get (RATE) {
+        get(RATE) {
             try {
-                val productid = call.principal<Product>()!!.id
+                val productid = call.request.queryParameters["productid"]!!
                 val rating = db.getRating(productid)
                 call.respond(HttpStatusCode.OK,rating)
             } catch (e:Exception) {
-                call.respond(HttpStatusCode.Conflict, emptyList<Rating>())
+                call.respond(HttpStatusCode.Conflict, e.message ?: "Some Problem Occurred")
             }
         }
 
-        post (UPDATE_RATE) {
+        post(UPDATE_RATE) {
             val rating = try {
                 call.receive<Rating>()
             } catch (e:Exception){
@@ -55,25 +55,23 @@ fun Route.ratingRoutes(
                 return@post
             }
             try {
-                val productid = call.principal<Product>()!!.id
-                db.updateRating(rating,productid)
+                db.updateRating(rating)
                 call.respond(HttpStatusCode.OK,SimpleResponse(true, "Rating Updated Successfully"))
             } catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false, e.message?: "Some Problem Occurred"))
             }
         }
 
-        delete (DELETE_RATE) {
+        delete(DELETE_RATE) {
             val gradeId = try {
-                call.request.queryParameters["id"]!!
+                call.request.queryParameters["gradeid"]!!
             } catch (e:Exception){
                 call.respond(HttpStatusCode.BadRequest,SimpleResponse(false, "QueryParameter: gradeid is not exist"))
                 return@delete
             }
             try {
-                val productid = call.principal<Product>()!!.id
-                db.deleteRating(gradeId,productid)
-                call.respond(HttpStatusCode.OK,SimpleResponse(false, "Rating Deleted Successfully"))
+                db.deleteRating(gradeId.toInt())
+                call.respond(HttpStatusCode.OK,SimpleResponse(true, "Rating Deleted Successfully"))
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false, e.message?: "Some Problem Occurred"))
             }

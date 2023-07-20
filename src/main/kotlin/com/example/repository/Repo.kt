@@ -87,6 +87,7 @@ class Repo {
             ProductTable.deleteWhere {ProductTable.id eq id}
         }
     }
+
     private fun rowToProduct(row: ResultRow) = Product(
         id = row[ProductTable.id],
         title = row[ProductTable.title],
@@ -99,7 +100,6 @@ class Repo {
         dbQuery {
             RatingTable.insert { rt->
                 rt[RatingTable.productid] = rating.productid
-                rt[RatingTable.gradeid] = rating.gradeid
                 rt[RatingTable.name] = rating.userName
                 rt[RatingTable.grade] = rating.grade
                 rt[RatingTable.title] = rating.title
@@ -107,17 +107,18 @@ class Repo {
             }
         }
     }
-    suspend fun getRating(productid: String):List<Rating> = dbQuery {
+
+    suspend fun getRating(productid: String): List<Rating?> = dbQuery {
         RatingTable.select{
             RatingTable.productid.eq(productid)
-        }.mapNotNull { rowToRating(it) }
+        }.map { rowToRating(it) }
     }
 
-    suspend fun updateRating(rating: Rating,productid: String){
+    suspend fun updateRating(rating: Rating){
         dbQuery {
             RatingTable.update(
                 where = {
-                    RatingTable.productid.eq(productid) and RatingTable.name.eq(rating.userName)
+                    RatingTable.gradeid.eq(rating.gradeid)
                 }
             ){ rt->
                 rt[RatingTable.grade] = rating.grade
@@ -127,7 +128,7 @@ class Repo {
         }
     }
 
-    suspend fun deleteRating(gradeid:String,productid: String){
+    suspend fun deleteRating(gradeid:Int){
         dbQuery {
             RatingTable.deleteWhere { RatingTable.gradeid.eq(gradeid) }
         }
