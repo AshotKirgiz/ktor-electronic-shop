@@ -28,12 +28,23 @@ class Repo {
             .singleOrNull()
     }
 
+    suspend fun getUser(id: Int): List<User?> = dbQuery {
+        UserTable.select { UserTable.id.eq(id) }
+            .map { rowToUser(it)}
+    }
+
+    suspend fun deleteUser(id: Int){
+        dbQuery {
+            UserTable.deleteWhere {UserTable.id eq id}
+        }
+    }
     private fun rowToUser(row: ResultRow?):User?{
         if(row == null){
             return null
         }
 
         return User(
+            id = row[UserTable.id],
             email = row[UserTable.email],
             hashPassword = row[UserTable.hashPassword],
             userName = row[UserTable.name]

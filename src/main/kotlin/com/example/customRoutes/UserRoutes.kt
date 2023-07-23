@@ -18,6 +18,7 @@ const val USERS = "$API_VERSION/users"
 const val REGISTER_REQUEST = "$USERS/register"
 const val LOGIN_REQUEST = "$USERS/login"
 const val RESET_PASSWORD = "$USERS/password/reset"
+const val DELETE_USER = "$USERS/delete"
 
 fun Route.userRoutes(
     db: Repo,
@@ -33,7 +34,7 @@ fun Route.userRoutes(
         }
 
         try {
-            val user = User(registerRequest.email,hashFunction(registerRequest.password),registerRequest.name)
+            val user = User(registerRequest.id, registerRequest.email,hashFunction(registerRequest.password),registerRequest.name)
             db.addUser(user)
             call.respond(HttpStatusCode.OK,SimpleResponse(true,jwtService.generateToken(user)))
         }catch (e:Exception){
@@ -69,6 +70,37 @@ fun Route.userRoutes(
     authenticate("jwt") {
         post(RESET_PASSWORD) {
             TODO()
+        }
+
+
+        get(USERS) {
+            val id = try {
+                call.request.queryParameters["id"]!!.toInt()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "QueryParameter: id is not exist"))
+                return@get
+            }
+            try {
+                val user = db.getUser(id)
+                call.respond(HttpStatusCode.OK, user)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.Conflict, SimpleResponse(false, e.message ?: "Some Problem Occurred"))
+            }
+        }
+
+        delete(DELETE_USER){
+            val id = try {
+                call.request.queryParameters["id"]!!.toInt()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "QueryParameter: id is not exist"))
+                return@delete
+            }
+            try {
+                db.deleteUser(id)
+                call.respond(HttpStatusCode.OK, SimpleResponse(true, "User Deleted Successfully"))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.Conflict, SimpleResponse(false, e.message ?: "Some Problem Occurred"))
+            }
         }
     }
 }
