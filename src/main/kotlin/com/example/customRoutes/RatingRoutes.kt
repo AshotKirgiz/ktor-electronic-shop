@@ -1,8 +1,8 @@
 package com.example.customRoutes
 
-import com.example.data.model.Product
 import com.example.data.model.Rating
 import com.example.data.table.RatingTable
+import com.example.data.table.RatingTable.name
 import com.example.util.SimpleResponse
 import com.example.repository.Repo
 import io.ktor.http.*
@@ -26,12 +26,16 @@ fun Route.ratingRoutes(
                 call.receive<Rating>()
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.BadRequest,SimpleResponse(false,"Missing Fields"))
+                return@post
             }
-
             try {
+                val name = call.request.queryParameters["name"]!!
+                db.checkRating(name)
+                /*call.respond(HttpStatusCode.Conflict,SimpleResponse(false, "You have already rated"))
                 val productid = call.request.queryParameters["productid"]!!
                 db.addRating(rating as Rating, productid)
-                call.respond(HttpStatusCode.OK,SimpleResponse(true,"Rating added Successfully"))
+                call.respond(HttpStatusCode.OK,SimpleResponse(true,"Rating added Successfully"))*/
+                call.respond(HttpStatusCode.OK,SimpleResponse(true,"You Have Already Rated"))
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false,e.message ?: "Some Problem Occurred"))
             }

@@ -15,11 +15,12 @@ fun Application.configureSecurity() {
         jwt("jwt") {
             verifier(jwtService.verifier)
             realm = "Electronic Shop"
-            validate {
-                val payload = it.payload
-                val email = payload.getClaim("email").asString()
-                val user = db.findUserByEmail(email)
-                user
+            validate { credential ->
+                if (credential.payload.getClaim("email").asString() != "") {
+                    JWTPrincipal(credential.payload)
+                } else {
+                    null
+                }
             }
         }
     }

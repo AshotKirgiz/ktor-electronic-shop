@@ -1,9 +1,11 @@
 package com.example.auth
 
 import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTCreator
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.example.data.model.User
+import java.util.*
 
 object JwtService {
     private val issuer = "ElectronicShop"
@@ -19,7 +21,13 @@ object JwtService {
         return JWT.create()
             .withSubject("ShopAuthentication")
             .withIssuer(issuer)
+            /*.withExpiresAt(Date(System.currentTimeMillis() + 300000))*/
             .withClaim("email",user.email)
             .sign(algorithm)
+    }
+
+    fun unpackToken(user:User): JWTCreator.Builder? {
+        return JWT.create()
+            .withClaim("email", user.email)
     }
 }

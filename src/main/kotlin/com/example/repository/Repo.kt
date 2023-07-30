@@ -28,15 +28,13 @@ class Repo {
             .singleOrNull()
     }
 
-    suspend fun getUser(id: Int): List<User?> = dbQuery {
-        UserTable.select { UserTable.id.eq(id) }
+    suspend fun getUser(email: String): List<User?> = dbQuery {
+        UserTable.select { UserTable.email.eq(email) }
             .map { rowToUser(it)}
     }
 
-    suspend fun deleteUser(id: Int){
-        dbQuery {
-            UserTable.deleteWhere {UserTable.id eq id}
-        }
+    suspend fun deleteUser(email: String): Boolean = dbQuery {
+        UserTable.deleteWhere { UserTable.email.eq(email) } > 0
     }
     private fun rowToUser(row: ResultRow?):User?{
         if(row == null){
@@ -125,6 +123,11 @@ class Repo {
         }.map { rowToRating(it) }
     }
 
+    suspend fun checkRating(name: String): List<Rating?> = dbQuery {
+        RatingTable.select {
+            RatingTable.name.eq(name)
+        }.mapNotNull { rowToRating(it) }
+    }
     suspend fun updateRating(rating: Rating){
         dbQuery {
             RatingTable.update(

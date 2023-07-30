@@ -1,5 +1,6 @@
 package com.example.customRoutes
 
+import com.auth0.jwt.JWT
 import com.example.auth.JwtService
 import com.example.data.model.LoginRequest
 import com.example.data.model.RegisterRequest
@@ -9,12 +10,14 @@ import com.example.util.SimpleResponse
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 const val API_VERSION = "/v1"
 const val USERS = "$API_VERSION/users"
+const val ACCOUNT = "$USERS/profile"
 const val REGISTER_REQUEST = "$USERS/register"
 const val LOGIN_REQUEST = "$USERS/login"
 const val RESET_PASSWORD = "$USERS/password/reset"
@@ -73,15 +76,11 @@ fun Route.userRoutes(
         }
 
 
-        get(USERS) {
-            val id = try {
-                call.request.queryParameters["id"]!!.toInt()
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "QueryParameter: id is not exist"))
-                return@get
-            }
+        get(ACCOUNT) {
             try {
-                val user = db.getUser(id)
+                val principal = call.principal<JWTPrincipal>()
+                val email = principal!!.payload.getClaim("email").asString()
+                val user = db.getUser(email)
                 call.respond(HttpStatusCode.OK, user)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.Conflict, SimpleResponse(false, e.message ?: "Some Problem Occurred"))
@@ -89,14 +88,10 @@ fun Route.userRoutes(
         }
 
         delete(DELETE_USER){
-            val id = try {
-                call.request.queryParameters["id"]!!.toInt()
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "QueryParameter: id is not exist"))
-                return@delete
-            }
             try {
-                db.deleteUser(id)
+                val principal = call.principal<JWTPrincipal>()
+                val email = principal!!.payload.getClaim("email").asString()
+                db.deleteUser(email)
                 call.respond(HttpStatusCode.OK, SimpleResponse(true, "User Deleted Successfully"))
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.Conflict, SimpleResponse(false, e.message ?: "Some Problem Occurred"))
