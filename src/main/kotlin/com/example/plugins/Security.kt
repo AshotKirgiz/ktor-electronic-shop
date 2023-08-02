@@ -21,6 +21,11 @@ fun Application.configureSecurity() {
                 } else {
                     null
                 }
+                if (credential.payload.getClaim("username").asString() != "") {
+                    JWTPrincipal(credential.payload)
+                } else {
+                    null
+                }
             }
         }
     }

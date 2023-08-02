@@ -23,11 +23,7 @@ object JwtService {
             .withIssuer(issuer)
             /*.withExpiresAt(Date(System.currentTimeMillis() + 300000))*/
             .withClaim("email",user.email)
+            .withClaim("username",user.userName)
             .sign(algorithm)
-    }
-
-    fun unpackToken(user:User): JWTCreator.Builder? {
-        return JWT.create()
-            .withClaim("email", user.email)
     }
 }

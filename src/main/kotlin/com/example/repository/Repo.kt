@@ -105,7 +105,7 @@ class Repo {
         price = row[ProductTable.price],
         availability = row[ProductTable.availability]
     )
-    suspend fun addRating(rating: Rating,productid: String){
+    suspend fun addRating(rating: Rating){
         dbQuery {
             RatingTable.insert { rt->
                 rt[RatingTable.productid] = rating.productid
@@ -117,17 +117,27 @@ class Repo {
         }
     }
 
+    suspend fun checkRating(name: String, productid: String): Boolean {
+        try {
+            return dbQuery {
+                RatingTable.select { (RatingTable.name.eq(name) and RatingTable.productid.eq(productid)) }
+                    .count() > 0
+            }
+        } catch (e: Exception) {
+            return false
+        }
+    }
     suspend fun getRating(productid: String): List<Rating?> = dbQuery {
         RatingTable.select{
             RatingTable.productid.eq(productid)
         }.map { rowToRating(it) }
     }
 
-    suspend fun checkRating(name: String): List<Rating?> = dbQuery {
-        RatingTable.select {
-            RatingTable.name.eq(name)
-        }.mapNotNull { rowToRating(it) }
+    suspend fun getUserRating(name: String): List<Rating?> = dbQuery {
+        RatingTable.select { RatingTable.name.eq(name) }
+            .map { rowToRating(it)}
     }
+
     suspend fun updateRating(rating: Rating){
         dbQuery {
             RatingTable.update(

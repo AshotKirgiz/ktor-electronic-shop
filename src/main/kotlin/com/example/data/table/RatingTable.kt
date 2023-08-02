@@ -1,5 +1,6 @@
 package com.example.data.table
 
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
 import org.jetbrains.exposed.sql.Table
 
 object RatingTable: Table() {

@@ -17,7 +17,7 @@ import io.ktor.server.routing.*
 
 const val API_VERSION = "/v1"
 const val USERS = "$API_VERSION/users"
-const val ACCOUNT = "$USERS/profile"
+const val ACCOUNT = "$USERS/{id}"
 const val REGISTER_REQUEST = "$USERS/register"
 const val LOGIN_REQUEST = "$USERS/login"
 const val RESET_PASSWORD = "$USERS/password/reset"
