@@ -26,7 +26,7 @@ fun Route.ratingRoutes(
             val rating = try {
                 call.receive<Rating>()
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "Missing Fields: ${e.message}"))
+                call.respond(HttpStatusCode.BadRequest, SimpleResponse(false, "Missing Fields"))
                 return@post
             }
 
@@ -41,16 +41,6 @@ fun Route.ratingRoutes(
                 call.respond(HttpStatusCode.OK, SimpleResponse(true, "Rating added successfully"))
             }
         }
-
-        /*post(CREATE_RATE) {
-            val rating = try {
-                call.receive<Rating>()
-            } catch (e:Exception) {
-                call.respond(HttpStatusCode.BadRequest,SimpleResponse(false,"Missing Fields"))
-            }
-            db.addRating(rating as Rating)
-            call.respond(HttpStatusCode.OK, SimpleResponse(true,"Rating add successfully"))
-        }*/
 
         get(RATE) {
             try {

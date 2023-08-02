@@ -9,4 +9,4 @@ data class Rating(
     val grade:Int,
     val title:String,
     val description:String
-): Principal
+)

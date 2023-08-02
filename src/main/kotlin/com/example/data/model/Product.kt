@@ -9,4 +9,4 @@ data class Product(
     val category:String,
     val price:Int,
     val availability:Boolean
-): Principal
+)
