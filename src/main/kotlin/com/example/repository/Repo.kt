@@ -66,6 +66,27 @@ class Repo {
         ProductTable.selectAll().map(::rowToProduct)
     }
 
+    suspend fun checkProductById(id: String): Boolean {
+        try {
+            return dbQuery {
+                ProductTable.select { (ProductTable.id.eq(id)) }
+                    .count() > 0
+            }
+        } catch (e: Exception) {
+            return false
+        }
+    }
+    suspend fun checkProductByCategory(category: String): Boolean {
+        try {
+            return dbQuery {
+                ProductTable.select { (ProductTable.category.eq(category)) }
+                    .count() > 0
+            }
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
     suspend fun findProductById(id: String): List<Product?> = dbQuery {
         ProductTable.select{
             ProductTable.id.eq(id)
@@ -127,6 +148,19 @@ class Repo {
             return false
         }
     }
+
+    suspend fun checkGradeid(gradeid: Int): Boolean {
+        try {
+            return dbQuery {
+                RatingTable.select { (RatingTable.gradeid.eq(gradeid)) }
+                    .count() > 0
+            }
+        } catch (e: Exception) {
+            return false
+        }
+    }
+
+
     suspend fun getRating(productid: String): List<Rating?> = dbQuery {
         RatingTable.select{
             RatingTable.productid.eq(productid)

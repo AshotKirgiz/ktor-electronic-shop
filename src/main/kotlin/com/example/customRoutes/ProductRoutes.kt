@@ -49,8 +49,12 @@ fun Route.productRoutes(
         get(FIND_PRODUCTS_ID) {
             try {
                 val id = call.request.queryParameters["id"]!!
-                val products = db.findProductById(id)
-                call.respond(HttpStatusCode.OK,products)
+                if (db.checkProductById(id)) {
+                    val products = db.findProductById(id)
+                    call.respond(HttpStatusCode.OK,products)
+                } else {
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse(false,"Product doesn't exist"))
+                }
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict, e.message ?: "Some Problem Occurred")
             }
@@ -59,8 +63,12 @@ fun Route.productRoutes(
         get(FIND_PRODUCTS_CATEGORY) {
             try {
                 val category = call.request.queryParameters["category"]!!
-                val products = db.findProductByCategory(category)
-                call.respond(HttpStatusCode.OK,products)
+                if (db.checkProductByCategory(category)) {
+                    val products = db.findProductByCategory(category)
+                    call.respond(HttpStatusCode.OK,products)
+                } else {
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse(false,"Product doesn't exist"))
+                }
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict, e.message ?: "Some Problem Occurred")
             }
@@ -75,8 +83,13 @@ fun Route.productRoutes(
             }
 
             try {
-                db.updateProduct(product)
-                call.respond(HttpStatusCode.OK,SimpleResponse(true,"Product updated Successfully"))
+                val id = product.id
+                if (db.checkProductById(id)) {
+                    db.updateProduct(product)
+                    call.respond(HttpStatusCode.OK,SimpleResponse(true,"Product updated Successfully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse(false,"Product doesn't exist"))
+                }
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false,e.message ?: "Some Problem Occurred"))
             }
@@ -90,8 +103,12 @@ fun Route.productRoutes(
                 return@delete
             }
             try {
-                db.deleteProduct(id)
-                call.respond(HttpStatusCode.OK, SimpleResponse(true, "Product Deleted Successfully"))
+                if (db.checkProductById(id)) {
+                    db.deleteProduct(id)
+                    call.respond(HttpStatusCode.OK, SimpleResponse(true, "Product Deleted Successfully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse(false,"Product doesn't exist"))
+                }
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.Conflict, SimpleResponse(false, e.message ?: "Some Problem Occurred"))
             }

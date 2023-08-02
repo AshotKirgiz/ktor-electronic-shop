@@ -35,7 +35,7 @@ fun Route.ratingRoutes(
             val productid = rating.productid
 
             if (db.checkRating(name, productid)) {
-                call.respond(HttpStatusCode.Conflict, SimpleResponse(false, "Rating already exists"))
+                call.respond(HttpStatusCode.Conflict, SimpleResponse(false, "Rating already exist"))
             } else {
                 db.addRating(rating)
                 call.respond(HttpStatusCode.OK, SimpleResponse(true, "Rating added successfully"))
@@ -71,23 +71,32 @@ fun Route.ratingRoutes(
                 return@post
             }
             try {
-                db.updateRating(rating)
-                call.respond(HttpStatusCode.OK,SimpleResponse(true, "Rating Updated Successfully"))
+                val gradeid = rating.gradeid
+                if (db.checkGradeid(gradeid)) {
+                    db.updateRating(rating)
+                    call.respond(HttpStatusCode.OK,SimpleResponse(true, "Rating Updated Successfully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse(false,"Rate doesn't exist"))
+                }
             } catch (e:Exception){
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false, e.message?: "Some Problem Occurred"))
             }
         }
 
         delete(DELETE_RATE) {
-            val gradeId = try {
-                call.request.queryParameters["gradeid"]!!
+            val gradeid = try {
+                call.request.queryParameters["gradeid"]!!.toInt()
             } catch (e:Exception){
                 call.respond(HttpStatusCode.BadRequest,SimpleResponse(false, "QueryParameter: gradeid is not exist"))
                 return@delete
             }
             try {
-                db.deleteRating(gradeId.toInt())
-                call.respond(HttpStatusCode.OK,SimpleResponse(true, "Rating Deleted Successfully"))
+                if (db.checkGradeid(gradeid)) {
+                    db.deleteRating(gradeid)
+                    call.respond(HttpStatusCode.OK,SimpleResponse(true, "Rating Deleted Successfully"))
+                } else {
+                    call.respond(HttpStatusCode.Conflict, SimpleResponse(false,"Rate doesn't exist"))
+                }
             } catch (e:Exception) {
                 call.respond(HttpStatusCode.Conflict,SimpleResponse(false, e.message?: "Some Problem Occurred"))
             }
